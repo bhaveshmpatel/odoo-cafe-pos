@@ -6,7 +6,7 @@ import { Trash2, Plus, Minus, Tag, CreditCard } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 
 export default function CartSummary() {
-  const { activeTableId, getActiveCart, getActiveCartPricing, updateItemQuantity, removeItemFromCart, clearCart } = usePosStore();
+  const { activeTableId, getActiveCart, getActiveCartPricing, updateItemQuantity, clearCart } = usePosStore();
   const cart = getActiveCart();
   
   const [couponCode, setCouponCode] = useState('');

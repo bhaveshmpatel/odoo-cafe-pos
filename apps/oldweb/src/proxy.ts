@@ -6,6 +6,7 @@ const protectedRoutes = ['/pos', '/kds', '/admin'];
 
 import { NextRequest } from "next/server"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default auth((req: NextRequest & { auth?: any }) => {
   const isLoggedIn = !!req.auth;
   const isProtectedRoute = protectedRoutes.some(route => req.nextUrl.pathname.startsWith(route));

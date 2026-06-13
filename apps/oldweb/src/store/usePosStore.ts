@@ -55,7 +55,7 @@ export const usePosStore = create<PosState>()(
         const tableCart = carts[activeTableId] || [];
         const existingItemIndex = tableCart.findIndex(item => item.product_id === product.id);
 
-        let newCart = [...tableCart];
+        const newCart = [...tableCart];
         if (existingItemIndex >= 0) {
           const item = newCart[existingItemIndex];
           if (item) {

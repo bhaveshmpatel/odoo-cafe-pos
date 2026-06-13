@@ -60,6 +60,7 @@ export default function FloorPopup({ onClose }: FloorPopupProps) {
                 <div key={floor.id} className="space-y-4">
                   <h3 className="text-lg font-semibold text-primary">{floor.name}</h3>
                   <div className="relative bg-canvas border border-hairline rounded-xl shadow-subtle min-h-[400px] w-full overflow-hidden">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {floor.tables?.map((table: any) => {
                       const isActive = !!(carts && table.id && carts[table.id] && carts[table.id]!.length > 0);
                       const isSelected = activeTableId === table.id;

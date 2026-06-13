@@ -1,34 +1,56 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const res = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, full_name: name }),
+      });
 
-    if (res?.error) {
-      setError('Invalid email or password');
+      const data = await res.json();
+      
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Registration failed');
+        setLoading(false);
+        return;
+      }
+
+      // Automatically sign in after registration
+      const signInRes = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (signInRes?.error) {
+        setError('Registered, but failed to log in automatically.');
+        setLoading(false);
+      } else {
+        router.push('/pos');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('An unexpected error occurred');
       setLoading(false);
-    } else {
-      router.push('/pos');
     }
   };
 
@@ -40,8 +62,8 @@ export default function LoginPage() {
     <div className="w-full max-w-md bg-canvas rounded-2xl shadow-card border border-hairline p-8">
       <div className="text-center mb-8">
         <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-canvas font-bold mx-auto mb-4 text-xl">O</div>
-        <h1 className="text-2xl font-bold text-primary">Welcome back</h1>
-        <p className="text-muted mt-2">Enter your credentials to access the POS.</p>
+        <h1 className="text-2xl font-bold text-primary">Create an account</h1>
+        <p className="text-muted mt-2">Get started with OdooCafe POS today.</p>
       </div>
 
       {error && (
@@ -60,7 +82,7 @@ export default function LoginPage() {
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        Sign in with Google
+        Sign up with Google
       </button>
 
       <div className="relative mb-6">
@@ -72,7 +94,21 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={handleSignup} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-body mb-2">Full Name</label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={20} />
+            <input 
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-surface-soft border border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+        </div>
         <div>
           <label className="block text-sm font-medium text-body mb-2">Email</label>
           <div className="relative">
@@ -98,6 +134,7 @@ export default function LoginPage() {
               className="w-full pl-10 pr-4 py-3 bg-surface-soft border border-hairline rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
               placeholder="••••••••"
               required
+              minLength={6}
             />
           </div>
         </div>
@@ -107,13 +144,13 @@ export default function LoginPage() {
           className="w-full py-3 bg-primary text-on-primary rounded-xl font-medium hover:bg-primary-active transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 shadow-sm"
         >
           {loading ? <Loader2 className="animate-spin" size={20} /> : (
-            <>Sign in <ArrowRight size={20} /></>
+            <>Create account <ArrowRight size={20} /></>
           )}
         </button>
       </form>
 
       <p className="mt-8 text-center text-sm text-body">
-        Don't have an account? <Link href="/signup" className="font-semibold text-primary hover:underline">Sign up</Link>
+        Already have an account? <Link href="/login" className="font-semibold text-primary hover:underline">Sign in</Link>
       </p>
     </div>
   );

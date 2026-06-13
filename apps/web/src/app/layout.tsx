@@ -1,19 +1,13 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { TopNav } from "@/components/layout/TopNav";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Odoo Cafe POS",
-  description: "Next-gen point of sale system for Odoo Cafe",
+  description: "A real-time, full-stack Point-of-Sale and Kitchen Display System.",
 };
 
 export default function RootLayout({
@@ -22,9 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+    <html lang="en" className="scroll-smooth">
+      <body className={`${inter.variable} font-sans min-h-screen bg-canvas text-ink flex flex-col`}>
+        <TopNav />
+        <main className="flex-1 flex flex-col">
+          {children}
+        </main>
       </body>
     </html>
   );
