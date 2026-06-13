@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '@repo/database';
 import { ApiResult, ICategory, IProduct, IPromotion, IOrder, PromotionType, DiscountType, OrderStatus } from '@repo/shared-types';
-import { calculateOrderTotal } from '../utils/pricingEngine.js';
+import { calculateOrderTotal } from '@repo/shared-types';
 
 const router: Router = Router();
 

@@ -1,5 +1,5 @@
 import { PromotionType, DiscountType, IPromotion, CartItem } from '@repo/shared-types';
-import { calculateOrderTotal } from '../utils/pricingEngine.js';
+import { calculateOrderTotal } from '@repo/shared-types';
 
 // Mock Data
 const cartItems: CartItem[] = [

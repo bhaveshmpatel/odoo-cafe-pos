@@ -11,10 +11,15 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@repo/shared-types": "workspace:^",
     "@repo/ui": "workspace:*",
+    "lucide-react": "^1.18.0",
     "next": "16.2.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "socket.io-client": "^4.8.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -23,6 +28,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "^9.39.1",
+    "tailwindcss": "^4.0.0",
     "typescript": "5.9.2"
   }
 }

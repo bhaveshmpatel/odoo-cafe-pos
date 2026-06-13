@@ -1,4 +1,4 @@
-import { PromotionType, DiscountType, IPromotion, CartItem, PricingResult, AppliedPromotion } from '@repo/shared-types';
+import { PromotionType, DiscountType, IPromotion, CartItem, PricingResult, AppliedPromotion } from '../index.js';
 
 /**
  * Evaluates order total and applies automated promotions.
