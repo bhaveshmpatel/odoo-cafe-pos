@@ -15,6 +15,7 @@
     "@repo/ui": "workspace:*",
     "lucide-react": "^1.18.0",
     "next": "16.2.0",
+    "next-auth": "5.0.0-beta.31",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",

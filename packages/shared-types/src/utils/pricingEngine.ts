@@ -1,4 +1,4 @@
-import { PromotionType, DiscountType, IPromotion, CartItem, PricingResult, AppliedPromotion } from '../index.js';
+import { PromotionType, DiscountType, IPromotion, CartItem, PricingResult, AppliedPromotion } from '../index';
 
 /**
  * Evaluates order total and applies automated promotions.
