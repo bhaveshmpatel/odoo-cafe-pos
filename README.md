@@ -1,159 +1,116 @@
-# Turborepo starter
+# Odoo Cafe POS ☕️
 
-This Turborepo starter is maintained by the Turborepo core team.
+> A real-time, full-stack Point-of-Sale and Kitchen Display System built for modern cafes.
 
-## Using this example
+[cite_start]This project is a unified, three-part system designed to manage restaurant operations from demand to delivery[cite: 272]. [cite_start]It features a centralized Administrative Backend, a high-speed POS Terminal for cashiers, and a real-time reactive Kitchen Display System (KDS)[cite: 272, 273].
 
-Run the following command:
+**[Link to Live Demo]** | **[Link to Demo Video]**
 
-```sh
-npx create-turbo@latest
+---
+
+## 🚀 The Architecture
+This project is built as a Monorepo using **Turborepo** to separate concerns while sharing database schemas and TypeScript interfaces across the stack.
+
+* **Frontend (`apps/web`):** Next.js (App Router), Tailwind CSS, Zustand (State Management).
+* **Backend (`apps/api`):** Node.js, Express, Socket.io (for real-time KDS syncing).
+* **Database (`packages/database`):** PostgreSQL managed via **Prisma ORM**.
+* **Shared Types (`packages/shared-types`):** Centralized TypeScript interfaces for end-to-end type safety.
+
+---
+
+## ✨ Core Features
+
+### 1. Administrative Backend
+[cite_start]The control center for cafe owners (Admin role).
+* [cite_start]**Menu & Inventory:** Manage products, categories, and dynamic UI colors[cite: 295, 308].
+* [cite_start]**Spatial Floor Plans:** Create and map out floors and physical table arrangements[cite: 319].
+* [cite_start]**Automated Promotions:** Set conditional pricing rules based on minimum quantities or order totals[cite: 330, 332, 333].
+* [cite_start]**Real-time Analytics:** View live dashboards with sales trends, top products, and exportable reports[cite: 352, 368].
+
+### 2. The POS Terminal
+[cite_start]A fast, offline-resilient interface for cashiers (Employee role).
+* **Multi-Table Cart State:** Switch between active tables without losing un-submitted cart data.
+* [cite_start]**Dynamic Payments:** Process Cash, Card, or automatically generated UPI QR codes[cite: 421, 422, 424].
+* [cite_start]**Customer Tracking:** Assign specific customers to orders for email receipt delivery[cite: 461].
+
+### 3. Kitchen Display System (KDS)
+[cite_start]A reactive pipeline for the kitchen staff[cite: 463].
+* [cite_start]**Real-Time Sync:** WebSockets instantly push new orders from the POS to the kitchen[cite: 464].
+* [cite_start]**Stage Progression:** Move tickets from *To Cook* → *Preparing* → *Completed*[cite: 470].
+* [cite_start]**Item-Level Tracking:** Tap individual items on a ticket to strike them through as they are plated[cite: 478].
+
+---
+
+## 🛠️ Local Development Setup
+
+Follow these steps to run the complete ecosystem locally.
+
+### Prerequisites
+* Node.js (v18+)
+* PostgreSQL running locally or via Docker
+* `pnpm` or `npm` installed globally
+
+### 1. Clone & Install
+```bash
+git clone [https://github.com/your-username/odoo-cafe-pos.git](https://github.com/your-username/odoo-cafe-pos.git)
+cd odoo-cafe-pos
+npm install
 ```
 
-## What's inside?
+### 2. Environment Configuration
 
-This Turborepo includes the following packages/apps:
+Create a `.env` file in the root directory (or use `.env.example` as a template).
 
-### Apps and Packages
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/odoocafe"
+NEXT_PUBLIC_API_URL="http://localhost:4000"
+JWT_SECRET="super_secret_hackathon_key"
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
 ```
 
-Without global `turbo`, use your package manager:
+### 3. Database Initialization (Prisma)
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+Generate the client and push the schema to your PostgreSQL database.
+
+```bash
+cd packages/database
+npx prisma db push
+npx prisma generate
+
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 4. Run the Turborepo
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+This single command will boot up both the Next.js frontend and the Node/Express backend simultaneously.
 
-```sh
-turbo build --filter=docs
+```bash
+npm run dev
+
 ```
 
-Without global `turbo`:
+* **Frontend / POS:** `http://localhost:3000`
+* **Backend API:** `http://localhost:4000`
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+---
+
+## 🔑 Demo Credentials
+
+To test the system, use the following pre-seeded accounts:
+
+**Admin / Owner (Backend Access)** 
+
+* **Email:** admin@cafe.com
+* **Password:** admin123
+
+**Cashier / Employee (POS Access)** 
+
+* **Email:** employee@cafe.com
+* **Password:** pos123
+
+---
+
+*Built for the Odoo Hackathon* 🚀
+
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
 ```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)

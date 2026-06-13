@@ -1,0 +1,242 @@
+// ─── Prisma Schema for Odoo Cafe POS ───────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+}
+
+enum TableShape {
+  RECTANGLE
+  CIRCLE
+  SQUARE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  COMPLETED
+  CANCELLED
+}
+
+enum ItemStatus {
+  QUEUED
+  TO_COOK
+  PREPARING
+  COMPLETED
+}
+
+enum PaymentType {
+  CASH
+  CARD
+  UPI
+}
+
+enum PromotionType {
+  MIN_QUANTITY
+  MIN_AMOUNT
+  COUPON
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+// ─── Models ────────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password_hash String
+  full_name     String
+  role          UserRole @default(EMPLOYEE)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("users")
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  full_name  String
+  email      String?  @unique
+  phone      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("customers")
+}
+
+model Category {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  color      String
+  sort_order Int      @default(0)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  price        Decimal  @db.Decimal(10, 2)
+  image_url    String?
+  is_available Boolean  @default(true)
+  category_id  String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  category   Category    @relation(fields: [category_id], references: [id])
+  orderItems OrderItem[]
+  promotions Promotion[]
+
+  @@map("products")
+}
+
+model Floor {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  sort_order Int      @default(0)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  tables DiningTable[]
+
+  @@map("floors")
+}
+
+model DiningTable {
+  id           String     @id @default(cuid())
+  table_number Int
+  floor_id     String
+  pos_x        Float
+  pos_y        Float
+  width        Float      @default(100)
+  height       Float      @default(100)
+  shape        TableShape @default(RECTANGLE)
+  capacity     Int        @default(4)
+  is_active    Boolean    @default(true)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+
+  floor  Floor   @relation(fields: [floor_id], references: [id])
+  orders Order[]
+
+  @@unique([floor_id, table_number])
+  @@map("dining_tables")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  order_number    Int         @default(autoincrement())
+  dining_table_id String?
+  customer_id     String?
+  user_id         String
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @default(0) @db.Decimal(10, 2)
+  discount_total  Decimal     @default(0) @db.Decimal(10, 2)
+  tax_total       Decimal     @default(0) @db.Decimal(10, 2)
+  grand_total     Decimal     @default(0) @db.Decimal(10, 2)
+  notes           String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  diningTable DiningTable? @relation(fields: [dining_table_id], references: [id])
+  customer    Customer?    @relation(fields: [customer_id], references: [id])
+  user        User         @relation(fields: [user_id], references: [id])
+  items       OrderItem[]
+  payments    Payment[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String     @id @default(cuid())
+  order_id    String
+  product_id  String
+  quantity    Int
+  unit_price  Decimal    @db.Decimal(10, 2)
+  total_price Decimal    @db.Decimal(10, 2)
+  item_status ItemStatus @default(QUEUED)
+  notes       String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  order_id          String
+  payment_method_id String
+  amount_paid       Decimal  @db.Decimal(10, 2)
+  change_given      Decimal  @default(0) @db.Decimal(10, 2)
+  created_at        DateTime @default(now())
+
+  order         Order         @relation(fields: [order_id], references: [id])
+  paymentMethod PaymentMethod @relation(fields: [payment_method_id], references: [id])
+
+  @@map("payments")
+}
+
+model PaymentMethod {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  type       PaymentType
+  is_active  Boolean     @default(true)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  payments Payment[]
+
+  @@map("payment_methods")
+}
+
+model Promotion {
+  id               String        @id @default(cuid())
+  name             String
+  description      String?
+  type             PromotionType
+  discount_type    DiscountType
+  discount_value   Decimal       @db.Decimal(10, 2)
+  min_quantity     Int?
+  min_order_amount Decimal?      @db.Decimal(10, 2)
+  coupon_code      String?       @unique
+  product_id       String?
+  is_active        Boolean       @default(true)
+  starts_at        DateTime?
+  ends_at          DateTime?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+
+  product Product? @relation(fields: [product_id], references: [id])
+
+  @@map("promotions")
+}
