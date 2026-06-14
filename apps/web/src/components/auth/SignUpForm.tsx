@@ -45,7 +45,7 @@ export function SignUpForm() {
       if (signInRes?.error) {
         setError("Account created, but failed to log in automatically.");
       } else {
-        router.push("/admin/dashboard"); // Or wherever the default post-login route is
+        router.push("/admin"); // Or wherever the default post-login route is
         router.refresh();
       }
     } catch (err) {
@@ -154,7 +154,7 @@ export function SignUpForm() {
 
       <button
         type="button"
-        onClick={() => signIn("google", { callbackUrl: "/admin/dashboard" })}
+        onClick={() => signIn("google", { callbackUrl: "/admin" })}
         className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-hairline bg-surface-card px-4 py-2 text-sm font-medium text-ink shadow-sm transition-all hover:bg-surface-soft focus:outline-none focus:ring-2 focus:ring-brand-accent/50 disabled:pointer-events-none disabled:opacity-50"
         disabled={isLoading}
       >

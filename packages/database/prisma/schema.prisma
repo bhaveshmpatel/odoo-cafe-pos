@@ -37,6 +37,11 @@ enum ItemStatus {
   COMPLETED
 }
 
+enum ShiftStatus {
+  OPEN
+  CLOSED
+}
+
 enum PaymentType {
   CASH
   CARD
@@ -66,7 +71,8 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  orders Order[]
+  orders        Order[]
+  shiftSessions ShiftSession[]
 
   @@map("users")
 }
@@ -102,10 +108,12 @@ model Product {
   id           String   @id @default(cuid())
   name         String
   description  String?
-  price        Decimal  @db.Decimal(10, 2)
-  image_url    String?
-  is_available Boolean  @default(true)
-  category_id  String
+  price          Decimal  @db.Decimal(10, 2)
+  image_url      String?
+  is_available   Boolean  @default(true)
+  stock_quantity Int      @default(100)
+  sales_count    Int      @default(0)
+  category_id    String
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
@@ -142,6 +150,7 @@ model DiningTable {
   is_active    Boolean    @default(true)
   created_at   DateTime   @default(now())
   updated_at   DateTime   @updatedAt
+  
 
   floor  Floor   @relation(fields: [floor_id], references: [id])
   orders Order[]
@@ -183,6 +192,7 @@ model OrderItem {
   total_price Decimal    @db.Decimal(10, 2)
   item_status ItemStatus @default(QUEUED)
   notes       String?
+  modifiers   String[]   @default([])
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 
@@ -239,4 +249,22 @@ model Promotion {
   product Product? @relation(fields: [product_id], references: [id])
 
   @@map("promotions")
+}
+
+model ShiftSession {
+  id            String      @id @default(cuid())
+  user_id       String
+  start_time    DateTime    @default(now())
+  end_time      DateTime?
+  starting_cash Decimal     @db.Decimal(10, 2)
+  ending_cash   Decimal?    @db.Decimal(10, 2)
+  expected_cash Decimal?    @db.Decimal(10, 2)
+  status        ShiftStatus @default(OPEN)
+  notes         String?
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("shift_sessions")
 }

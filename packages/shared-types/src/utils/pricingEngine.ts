@@ -8,12 +8,15 @@ import { PromotionType, DiscountType, IPromotion, CartItem, PricingResult, Appli
  * 2. Product Minimum Quantity Promos
  * 3. Order Minimum Amount Promos
  * 4. Manual Coupons
+ * 4a. Manual Overrides
  * 5. Tax Calculation
  * 6. Grand Total
  *
  * @param cartItems - Array of active items in the cart
  * @param activePromotions - Array of all currently active promotions
  * @param appliedCouponCode - Optional manual coupon code applied by cashier
+ * @param manualDiscountType - Optional manual override discount type
+ * @param manualDiscountValue - Optional manual override discount value
  * @param taxRate - Percentage tax rate (e.g., 5 for 5%)
  * @returns The final pricing breakdown
  */
@@ -21,6 +24,8 @@ export const calculateOrderTotal = (
   cartItems: CartItem[],
   activePromotions: IPromotion[],
   appliedCouponCode?: string | null,
+  manualDiscountType?: DiscountType | null,
+  manualDiscountValue?: number | null,
   taxRate: number = 5
 ): PricingResult => {
   // 1. Base Subtotal
@@ -31,17 +36,25 @@ export const calculateOrderTotal = (
     subtotal += item.total_price;
   }
 
-  let totalDiscount = 0;
-  const appliedPromotions: AppliedPromotion[] = [];
+  // 2. Evaluate all potential promotions independently
+  const potentialPromotions = new Map<string, AppliedPromotion>();
+
+  // Helper to add or update a potential promo
+  const addPotentialPromo = (promo: AppliedPromotion) => {
+    if (potentialPromotions.has(promo.promotion_id)) {
+      const existing = potentialPromotions.get(promo.promotion_id)!;
+      existing.discount_amount += promo.discount_amount;
+    } else {
+      potentialPromotions.set(promo.promotion_id, promo);
+    }
+  };
 
   // Group promos by type
   const minQtyPromos = activePromotions.filter(p => p.type === PromotionType.MIN_QUANTITY);
   const minAmtPromos = activePromotions.filter(p => p.type === PromotionType.MIN_AMOUNT);
-  const couponPromos = activePromotions.filter(p => p.type === PromotionType.COUPON);
 
-  // 2. Product Minimum Quantity Promos
+  // A. Product Minimum Quantity Promos
   for (const item of cartItems) {
-    // Find if there's a min qty promo for this product
     const promo = minQtyPromos.find(p => p.product_id === item.product_id);
     if (promo && promo.min_quantity && item.quantity >= promo.min_quantity) {
       let itemDiscount = 0;
@@ -50,16 +63,13 @@ export const calculateOrderTotal = (
       if (promo.discount_type === DiscountType.PERCENTAGE) {
         itemDiscount = item.total_price * (promoDiscountValue / 100);
       } else if (promo.discount_type === DiscountType.FIXED) {
-        // Apply fixed discount per qualifying quantity or overall? Usually overall for the line item.
         itemDiscount = promoDiscountValue;
       }
 
-      // Ensure discount doesn't exceed item total
       itemDiscount = Math.min(itemDiscount, item.total_price);
 
       if (itemDiscount > 0) {
-        totalDiscount += itemDiscount;
-        appliedPromotions.push({
+        addPotentialPromo({
           promotion_id: promo.id,
           promotion_name: promo.name,
           discount_amount: itemDiscount,
@@ -69,9 +79,7 @@ export const calculateOrderTotal = (
     }
   }
 
-  // 3. Order Minimum Amount Promos
-  // Note: Min amount usually applies to Subtotal before other discounts, or after?
-  // We'll evaluate based on base subtotal.
+  // B. Order Minimum Amount Promos
   for (const promo of minAmtPromos) {
     const minAmt = Number(promo.min_order_amount);
     if (promo.min_order_amount && subtotal >= minAmt) {
@@ -85,22 +93,19 @@ export const calculateOrderTotal = (
       }
 
       if (amtDiscount > 0) {
-        totalDiscount += amtDiscount;
-        appliedPromotions.push({
+        addPotentialPromo({
           promotion_id: promo.id,
           promotion_name: promo.name,
           discount_amount: amtDiscount,
           type: PromotionType.MIN_AMOUNT,
         });
-        // We typically only apply ONE min amount promo (the best one), but we'll apply all that match for simplicity,
-        // or break if we only want one. Let's just apply all matching for now.
       }
     }
   }
 
-  // 4. Manual Coupons
+  // C. Manual Coupons from Dropdown
   if (appliedCouponCode) {
-    const coupon = couponPromos.find(p => p.coupon_code === appliedCouponCode);
+    const coupon = activePromotions.find(p => p.coupon_code === appliedCouponCode || p.id === appliedCouponCode);
     if (coupon) {
       let couponDiscount = 0;
       const promoDiscountValue = Number(coupon.discount_value);
@@ -112,8 +117,7 @@ export const calculateOrderTotal = (
       }
 
       if (couponDiscount > 0) {
-        totalDiscount += couponDiscount;
-        appliedPromotions.push({
+        addPotentialPromo({
           promotion_id: coupon.id,
           promotion_name: coupon.name,
           discount_amount: couponDiscount,
@@ -123,8 +127,41 @@ export const calculateOrderTotal = (
     }
   }
 
-  // Ensure total discount doesn't exceed subtotal
-  totalDiscount = Math.min(totalDiscount, subtotal);
+  // D. Manual Overrides (Cashier custom discount)
+  if (manualDiscountType && manualDiscountValue) {
+    let overrideDiscount = 0;
+    if (manualDiscountType === DiscountType.PERCENTAGE) {
+      overrideDiscount = subtotal * (manualDiscountValue / 100);
+    } else if (manualDiscountType === DiscountType.FIXED) {
+      overrideDiscount = manualDiscountValue;
+    }
+    
+    if (overrideDiscount > 0) {
+      addPotentialPromo({
+        promotion_id: "MANUAL_OVERRIDE",
+        promotion_name: "Manual Discount",
+        discount_amount: overrideDiscount,
+        type: PromotionType.COUPON,
+      });
+    }
+  }
+
+  // 3. Pick the SINGLE best promotion (Highest Discount Amount)
+  let bestPromotion: AppliedPromotion | null = null;
+  let totalDiscount = 0;
+  const appliedPromotions: AppliedPromotion[] = [];
+
+  for (const promo of potentialPromotions.values()) {
+    if (!bestPromotion || promo.discount_amount > bestPromotion.discount_amount) {
+      bestPromotion = promo;
+    }
+  }
+
+  if (bestPromotion) {
+    totalDiscount = Math.min(bestPromotion.discount_amount, subtotal);
+    bestPromotion.discount_amount = totalDiscount;
+    appliedPromotions.push(bestPromotion);
+  }
 
   // 5. Calculate Tax
   const taxableAmount = subtotal - totalDiscount;

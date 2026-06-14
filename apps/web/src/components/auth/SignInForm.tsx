@@ -30,7 +30,7 @@ export function SignInForm() {
       if (res?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/admin/dashboard"); // Or wherever the default post-login route is
+        router.push("/admin"); // Or wherever the default post-login route is
         router.refresh();
       }
     } catch {
@@ -43,9 +43,7 @@ export function SignInForm() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-accent shadow-lg mb-2">
-          <Coffee className="h-6 w-6 text-on-primary" />
-        </div>
+        <img src="/image.png" alt="Odoo Cafe Logo" className="h-16 w-auto mb-2 object-contain drop-shadow-md" />
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Welcome back</h1>
         <p className="text-sm text-muted">
           Enter your credentials to access the terminal
@@ -119,7 +117,7 @@ export function SignInForm() {
 
       <button
         type="button"
-        onClick={() => signIn("google", { callbackUrl: "/admin/dashboard" })}
+        onClick={() => signIn("google", { callbackUrl: "/admin" })}
         className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-hairline bg-surface-card px-4 py-2 text-sm font-medium text-ink shadow-sm transition-all hover:bg-surface-soft focus:outline-none focus:ring-2 focus:ring-brand-accent/50 disabled:pointer-events-none disabled:opacity-50"
         disabled={isLoading}
       >

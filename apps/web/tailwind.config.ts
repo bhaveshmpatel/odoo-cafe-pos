@@ -50,6 +50,8 @@ const config: Config = {
         "on-primary": "#ffffff",
         "on-dark": "#ffffff",
         "on-dark-soft": "#a1a1aa",
+        brand: "#3b82f6",
+        "brand-dark": "#2563eb",
         "brand-accent": "#3b82f6",
         success: "#10b981",
         warning: "#f59e0b",

@@ -84,12 +84,22 @@ const nextAuthOptions = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     authorized({ auth, request: { nextUrl } }: any) {
       const isLoggedIn = !!auth?.user;
-      const isDashboard = nextUrl.pathname.startsWith('/admin') || nextUrl.pathname.startsWith('/terminal');
+      const isAdmin = auth?.user?.role === "ADMIN";
       
-      if (isDashboard) {
-        if (isLoggedIn) return true;
-        return false;
+      const isAdminRoute = nextUrl.pathname.startsWith('/admin');
+      const isAppRoute = nextUrl.pathname.startsWith('/terminal') || nextUrl.pathname.startsWith('/kds');
+      
+      if (isAdminRoute) {
+        if (!isLoggedIn) return false;
+        if (!isAdmin) return Response.redirect(new URL('/terminal', nextUrl));
+        return true;
       }
+      
+      if (isAppRoute) {
+        if (!isLoggedIn) return false;
+        return true;
+      }
+      
       return true;
     },
   },
