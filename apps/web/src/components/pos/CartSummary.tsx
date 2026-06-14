@@ -42,8 +42,8 @@ export function CartSummary({ promotions, onOpenFloor, token }: Props) {
             className="flex items-center gap-2 bg-surface-soft hover:bg-surface-strong px-3 py-1.5 rounded-lg border border-hairline transition-colors"
           >
             <MapPin className="w-4 h-4 text-brand-accent" />
-            <span className="text-sm font-medium text-ink">
-              {activeTableName ? activeTableName : (activeTableId ? `Table ${activeTableId.slice(0,4)}` : "Select Table")}
+            <span className="max-w-[100px] truncate">
+              {activeTableName ? `Table ${activeTableName}` : (activeTableId ? `Table ${activeTableId.slice(0,4)}` : "Select Table")}
             </span>
           </button>
         </div>

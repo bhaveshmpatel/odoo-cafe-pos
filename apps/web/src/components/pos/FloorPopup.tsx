@@ -90,7 +90,7 @@ export function FloorPopup({ onClose, token }: Props) {
                     disabled={!table.is_active}
                     onClick={() => {
                       if (!table.is_active) return;
-                      setActiveTable(table.id, table.name);
+                      setActiveTable(table.id, table.table_number.toString());
                       onClose();
                     }}
                     style={{
