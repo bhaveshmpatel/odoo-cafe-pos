@@ -66,28 +66,62 @@ async function main() {
 
   // ── Products ───────────────────────────────────────────────────────────
 
-  const productsData = [
-    // Hot Beverages
-    { name: 'Espresso', price: 120, category: 'Hot Beverages', description: 'Rich and bold single-shot espresso' },
-    { name: 'Cappuccino', price: 150, category: 'Hot Beverages', description: 'Classic cappuccino with steamed milk foam' },
-    { name: 'Latte', price: 160, category: 'Hot Beverages', description: 'Smooth espresso with velvety steamed milk' },
-    // Cold Beverages
-    { name: 'Iced Latte', price: 180, category: 'Cold Beverages', description: 'Chilled espresso over ice with cold milk' },
-    { name: 'Cold Brew', price: 200, category: 'Cold Beverages', description: '18-hour slow-steeped cold brew coffee' },
-    { name: 'Mango Smoothie', price: 160, category: 'Cold Beverages', description: 'Fresh mango blended with yoghurt' },
-    // Snacks
-    { name: 'Samosa', price: 40, category: 'Snacks', description: 'Crispy pastry filled with spiced potatoes' },
-    { name: 'Veg Sandwich', price: 90, category: 'Snacks', description: 'Grilled sandwich with fresh vegetables' },
-    { name: 'French Fries', price: 100, category: 'Snacks', description: 'Crispy golden fries with seasoning' },
-    // Main Course
-    { name: 'Paneer Tikka', price: 280, category: 'Main Course', description: 'Marinated cottage cheese grilled to perfection' },
-    { name: 'Butter Chicken', price: 320, category: 'Main Course', description: 'Tender chicken in creamy tomato gravy' },
-    { name: 'Veg Biryani', price: 240, category: 'Main Course', description: 'Fragrant basmati rice with mixed vegetables' },
-    // Desserts
-    { name: 'Chocolate Brownie', price: 160, category: 'Desserts', description: 'Warm fudgy brownie with chocolate chips' },
-    { name: 'Gulab Jamun', price: 80, category: 'Desserts', description: 'Soft milk-solid dumplings in rose syrup' },
-    { name: 'Cheesecake Slice', price: 220, category: 'Desserts', description: 'New York-style baked cheesecake' },
-  ];
+  const productsData: { name: string; price: number; category: string; description: string; image_url: string }[] = [];
+  
+  const unsplashImages = {
+    'Hot Beverages': [
+      'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80',
+    ],
+    'Cold Beverages': [
+      'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80',
+    ],
+    'Snacks': [
+      'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&w=400&q=80', // fries
+      'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=400&q=80', // sandwich
+      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80', // burger
+    ],
+    'Main Course': [
+      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80', // pasta
+      'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80', // pizza
+      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80', // meat
+    ],
+    'Desserts': [
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80', // cake
+      'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80', // desert
+      'https://images.unsplash.com/photo-1563805042-7684c8e9e5cb?auto=format&fit=crop&w=400&q=80', // ice cream
+    ]
+  };
+
+  const adjectives = ['Classic', 'Premium', 'Signature', 'Spicy', 'Sweet', 'Tangy', 'Roasted', 'Creamy', 'Iced', 'Deluxe'];
+  const baseItems: Record<string, string[]> = {
+    'Hot Beverages': ['Espresso', 'Latte', 'Cappuccino', 'Mocha', 'Americano', 'Macchiato', 'Tea', 'Hot Chocolate'],
+    'Cold Beverages': ['Frappe', 'Cold Brew', 'Smoothie', 'Iced Tea', 'Lemonade', 'Shake', 'Cooler', 'Mojito'],
+    'Snacks': ['Fries', 'Burger', 'Sandwich', 'Nachos', 'Tacos', 'Wings', 'Wrap', 'Samosa'],
+    'Main Course': ['Pizza', 'Pasta', 'Steak', 'Curry', 'Biryani', 'Noodles', 'Bowl', 'Salad'],
+    'Desserts': ['Cake', 'Brownie', 'Ice Cream', 'Waffle', 'Crepe', 'Tart', 'Pudding', 'Cheesecake']
+  };
+
+  // Generate exactly 200 products evenly distributed across categories (40 per category)
+  for (const cat of categoriesData) {
+    const items = baseItems[cat.name] || ['Item'];
+    const images = unsplashImages[cat.name as keyof typeof unsplashImages] || unsplashImages['Snacks'];
+    for (let i = 1; i <= 40; i++) {
+      const adj = adjectives[i % adjectives.length];
+      const base = items[i % items.length];
+      const img = images[i % images.length];
+      productsData.push({
+        name: `${adj} ${base} ${i}`,
+        price: Math.floor(Math.random() * 400) + 50,
+        category: cat.name,
+        description: `Experience our delicious ${adj.toLowerCase()} ${base.toLowerCase()}, freshly prepared.`,
+        image_url: img
+      });
+    }
+  }
 
   const productIds: Record<string, string> = {};
   for (const prod of productsData) {
@@ -100,12 +134,14 @@ async function main() {
         price: prod.price,
         description: prod.description,
         category_id: categories[prod.category]!,
+        image_url: prod.image_url,
       },
       create: {
         name: prod.name,
         description: prod.description,
         price: prod.price,
         category_id: categories[prod.category]!,
+        image_url: prod.image_url,
       },
     });
     productIds[prod.name] = product.id;

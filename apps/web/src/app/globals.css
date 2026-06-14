@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --background: #fafaf9;
+    --foreground: #0c0a09;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0c0a09;
+      --foreground: #fafaf9;
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink font-sans antialiased selection:bg-brand-accent selection:text-white;
+  }
+}

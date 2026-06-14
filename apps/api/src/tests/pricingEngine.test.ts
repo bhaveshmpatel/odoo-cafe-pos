@@ -1,5 +1,5 @@
 import { PromotionType, DiscountType, IPromotion, CartItem } from '@repo/shared-types';
-import { calculateOrderTotal } from '../utils/pricingEngine.js';
+import { calculateOrderTotal } from '@repo/shared-types';
 
 // Mock Data
 const cartItems: CartItem[] = [
@@ -61,7 +61,7 @@ const activePromotions: IPromotion[] = [
   }
 ];
 
-const result1 = calculateOrderTotal(cartItems, activePromotions, null, 5);
+const result1 = calculateOrderTotal(cartItems, activePromotions, null, null, null, 5);
 console.log('Result 1 (No Coupon):', JSON.stringify(result1, null, 2));
 // Expected: Subtotal 440
 // Promo 1 (Min Qty): 10% off 360 = 36
@@ -71,7 +71,7 @@ console.log('Result 1 (No Coupon):', JSON.stringify(result1, null, 2));
 // Tax (5%): 17.70
 // Grand Total: 371.70
 
-const result2 = calculateOrderTotal(cartItems, activePromotions, 'WINTER20', 5);
+const result2 = calculateOrderTotal(cartItems, activePromotions, 'WINTER20', null, null, 5);
 console.log('Result 2 (With Coupon):', JSON.stringify(result2, null, 2));
 // Expected: Same as above + Coupon (20% off 440 = 88)
 // Total Discount: 86 + 88 = 174

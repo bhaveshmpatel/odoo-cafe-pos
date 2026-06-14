@@ -10,7 +10,7 @@
 As an autonomous agent, you must strictly adhere to the following rules. Failure to do so will result in immediate session termination.
 
 1. **NO PLACEHOLDERS:** You are forbidden from writing lazy code (e.g., `// TODO: implement logic`, `// insert CSS here`). You must write 100% production-ready, complete code.
-2. **CONTEXT FIRST:** Before writing ANY code, you MUST read `README.md`, `TECH_STACK.md`, `CODING_STANDARDS.md`, `GIT_WORKFLOW.md`, and `DESIGN.md`. 
+2. **CONTEXT FIRST:** Before writing ANY code, you MUST read `README.md`, `TECH_STACK.md`, `CODING_STANDARDS.md`, `GIT_WORKFLOW.md`.
 3. **FILE PATHS:** Every code block you generate MUST begin with the absolute, exact file path (e.g., `apps/web/src/app/(pos)/terminal/page.tsx`).
 4. **THE "PAUSE & VERIFY" LOOP:** You will execute this project in distinct Phases. You are forbidden from moving to the next Phase until I type: *"PHASE [X] APPROVED. PROCEED."*
 

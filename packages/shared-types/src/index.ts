@@ -46,6 +46,12 @@ export enum ItemStatus {
   COMPLETED = 'COMPLETED',
 }
 
+/** Status of a cashier shift session. */
+export enum ShiftStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
+
 /** Supported payment instrument types. */
 export enum PaymentType {
   CASH = 'CASH',
@@ -123,6 +129,8 @@ export interface IProduct {
   price: string;
   image_url: string | null;
   is_available: boolean;
+  stock_quantity: number;
+  sales_count: number;
   category_id: string;
   created_at: string;
   updated_at: string;
@@ -211,6 +219,7 @@ export interface IOrderItem {
   total_price: string;
   item_status: ItemStatus;
   notes: string | null;
+  modifiers: string[];
   created_at: string;
   updated_at: string;
 
@@ -273,6 +282,22 @@ export interface IPromotion {
   product?: IProduct;
 }
 
+export interface IShiftSession {
+  id: string;
+  user_id: string;
+  start_time: string;
+  end_time: string | null;
+  starting_cash: string;
+  ending_cash: string | null;
+  expected_cash: string | null;
+  status: ShiftStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+
+  user?: IUser;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Section 3 — API Response Types
 // ─────────────────────────────────────────────────────────────────────────────
@@ -311,6 +336,7 @@ export interface CartItem {
   total_price: number;
   notes?: string;
   category_color?: string;
+  modifiers?: string[];
 }
 
 /**
@@ -361,6 +387,7 @@ export interface KdsNewOrderPayload {
 export interface KdsUpdateStagePayload {
   order_id: string;
   new_status: OrderStatus;
+  order_number?: number;
 }
 
 /** Payload emitted when a kitchen worker strikes-through a single item. */
@@ -404,3 +431,4 @@ export interface JwtPayload {
   email: string;
   role: UserRole;
 }
+export * from './utils/pricingEngine';

@@ -9,6 +9,7 @@ import { Server } from 'socket.io';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import posRoutes from './routes/posRoutes.js';
+import { shiftRoutes } from './routes/shiftRoutes.js';
 import { authenticateToken, requireAdmin } from './middleware/authMiddleware.js';
 
 // Import Sockets
@@ -44,6 +45,7 @@ app.use('/api/admin', authenticateToken, requireAdmin, adminRoutes);
 
 // POS (Protected)
 app.use('/api/pos', authenticateToken, posRoutes);
+app.use('/api/pos/shifts', authenticateToken, shiftRoutes);
 
 // ---------------------------------------------------------------------------
 // WebSockets Setup
